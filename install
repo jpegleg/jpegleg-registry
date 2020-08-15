@@ -31,17 +31,12 @@ firewall-cmd --permanent --add-port=80/tcp
 firewall-cmd --permanent --add-ports=22/tcp
 firewall-cmd --reload
 
-# prevent exposing the registry on its own execpt for locally
-iptables -A INPUT -p tcp -s localhost --dport 5000 -j ACCEPT
-iptables -A INPUT -p tcp --dport 5000 -j DROP
-iptables-save > /etc/sysconfig/iptables
-
 reglistener=$(docker container ls | awk '{print $2}' | grep registry | wc -l)
 if [ $reglistener = 1 ]; then
   echo "local docker registry found..."
 else
   echo "No local registry found, starting up local registry."
-  docker run -d --restart unless-stopped -p 5000:5000 registry
+  docker run -d --restart unless-stopped  -p 127.0.0.1:5000:5000 registry
 fi
 
 # services

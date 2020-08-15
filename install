@@ -26,12 +26,32 @@ firewall-cmd --permanent --add-port=443/tcp
 firewall-cmd --permanent --add-port=80/tcp
 # admin ports
 firewall-cmd --permanent --add-ports=22/tcp
-
 firewall-cmd --reload
 
+# prevent exposing the registry on its own execpt for locally
+iptables -A INPUT -p tcp -s localhost --dport 5000 -j ACCEPT
+iptables -A INPUT -p tcp --dport 5000 -j DROP
+iptables-save > /etc/sysconfig/iptables
+
+reglistener=$(docker container ls | awk '{print $2}' | grep registry | wc -l)
+if [ $reglistener = 1 ]; then
+  echo "local docker registry found..."
+else
+  echo "No local registry found, starting up local registry."
+  docker run -d --restart unless-stopped -p 5000:5000 registry
+fi
 
 # services
 systemctl enable httpd
 systemctl enable haproxy
 systemctl enable docker
 systemctl enable firewalld
+systemctl restart httpd
+certbot --apache -d $1 # pass in DNS names and alternate names
+mkdir ~/certs
+primary=$(echo $1 | cut -d',' -f1)
+cp /etc/letsencrypt/live/$primary/* ~/certs/
+cat ~/certs/cert.pem ~/certs/chain.pem ~/certs/privkey.pem > /etc/keycert.pem
+cp haproxy.cfg /etc/haproxy/haproxy.cfg
+
+systemctl restart haproxy

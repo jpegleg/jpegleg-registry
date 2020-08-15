@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# check for edits to haproxy.cfg acl
+grep ACCESSLISTHERE haproxy.cfg 2>/dev/null && echo "Error: haproxy.cfg has access IP/URL list set to just ACCESSLISTHERE" && echo "replace ACCESSLISTHERE in the haproxy config with a space delimited list of IPs IP ranges, or URLs that will be allowed to access the registry." && exit 1
+
 # get the packages we need
 yum install -y haproxy
 yum install -y firewalld

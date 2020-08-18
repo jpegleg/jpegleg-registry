@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+mkdir ~/certs
+primary=$(echo $1 | cut -d',' -f1)
+cp /etc/letsencrypt/live/$primary/* ~/certs/
+cat ~/certs/cert.pem ~/certs/chain.pem ~/certs/privkey.pem > /etc/keycert.pem
+cp haproxy.cfg /etc/haproxy/haproxy.cfg
+
+systemctl restart haproxy

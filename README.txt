@@ -10,6 +10,6 @@ ACLs in haproxy are used to restrict access to the registry based on IP, DNS, or
 
 This is an ephemeral type registry. The intent is to have the actual repo elsewhere or files on disk, then load them into the registry to serve up the product images to the clusters. If a registry goes down, it shouldn't matter as long as your CI system is the source of the actual repo etc.
 
-github ------> jpegleg-registry server <----------------- ( cloud instance, IoT, appliance, deployment )
-                   |
-dockerhub ---------|
+developers --------> github/CI ------> jpegleg-registry server <----------------- ( cloud instance, IoT, appliance, deployment )
+    |                                     |
+dockerhub --------------------------------|

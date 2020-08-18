@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+certbot --apache -d $1 # pass in DNS names and alternate names
+mkdir ~/certs
+primary=$(echo $1 | cut -d',' -f1)
+cp /etc/letsencrypt/live/$primary/* ~/certs/
+cat ~/certs/cert.pem ~/certs/chain.pem ~/certs/privkey.pem > /etc/keycert.pem
+cp haproxy.cfg /etc/haproxy/haproxy.cfg
+
+systemctl restart haproxy
